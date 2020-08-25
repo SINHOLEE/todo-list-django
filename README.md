@@ -7,13 +7,15 @@
 - `<기능이름>`: `development`에서 분기, 하나의 기능이 완성될 때 `development`로 merge
 - `document` : `develop`에서 분기, 문서 완성시 `develop`으로 merge
 
+
 ## 커밋 규칙
 
 > [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)을 따릅니다.
 
 - 커밋 메시지에 타입별 머릿말 붙이기
 
-### 가능한 타입명
+
+## 가능한 타입명
 
 - `docs` : 문서와 관련된 커밋입니다.
 - `feat` : 기능 개발과 관련된 커밋입니다.
@@ -24,7 +26,12 @@
 
 - 참고: https://github.com/woowa-techcamp-2020/market-11/blob/master/CONTRIBUTING.md
 
-### TDD에 대한 의문점
+
+## 환경설정 세팅기
+- [뻘짓으로 하루를 날림!](https://github.com/SINHOLEE/todo-list-django/wiki/Todo-List-apache---gunicorn---django-deploy)
+
+
+## TDD에 대한 의문점
 코드를 구현할수록 테스트 또한 점점 복잡해진다. 그리고 반복적인 노력이 아깝게 생각이 들다보니 아래와 같은 의문이 든다.
 
 - 테스트가 지나치게 많은 것이 아닌가.
@@ -35,6 +42,7 @@
 - 실무적으로 정말 이렇게까지 코딩해야 하는가.
 
 TDD 과정에서 이러한 질문을 하는 것은 충분히 가치가 있는 일이다.
+
 
 ### 자명한 함수의 자명한 테스트를 하는 이유
 1. 진짜 자명한 함수의 자명한 테스트를 작성하는 것이라면 어차피 입력하는데 얼마 시간 안 걸리니 그냥 입력하자.
