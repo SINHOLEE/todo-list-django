@@ -65,9 +65,12 @@ class NewVisitorTest(unittest.TestCase):
 
         # 사용자가 엔터를 입력하면 페이지를 새로고침해서 모든 일정 목록을 보여준다.
         inputbox_with_placeholder.send_keys(Keys.ENTER)
-        time.sleep(1)
+        time.sleep(10)
+        print(self.browser.get_log())
         # "1: 시장에서 미역 사기"가 첫 번째 할일로 일정 목록에서 보여진다.
+        # form 태그를 html 파일에 추가하면, table element를 찾지 못하는 에러가 발생한다. 왜?
         table = self.browser.find_element_by_class_name('todo-list-table')
+        # print(self.browser.get_log(log_type='driver'))
         rows = table.find_elements_by_tag_name('tr')
         self.assertEqual('시장에서 미역 사기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
 
