@@ -21,3 +21,5 @@
 - `refactor` : 코드 리팩토링과 관련된 커밋입니다.
 
 - `test`: 테스트 코드 관련 커밋입니다. (custom type)
+
+- 참고: https://github.com/woowa-techcamp-2020/market-11/blob/master/CONTRIBUTING.md
