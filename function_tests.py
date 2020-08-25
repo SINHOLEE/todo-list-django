@@ -32,7 +32,6 @@ Failed to establish a new connection: [Errno 111] Connection refused'))
 
 class NewVisitorTest(unittest.TestCase):
     # html_soup:BeautifulSoup = None # 타입을 정의하는게  컨트롤+스페이스바로 함수 찾기 편하다.
-
     def setUp(self):
 
         options = Options()
@@ -58,7 +57,7 @@ class NewVisitorTest(unittest.TestCase):
 
         # 일정을 입력할 수 있는 tag로 바로 이동한다.
         inputbox_with_placeholder = self.browser.find_element_by_id('new-item')
-        self.assertSetEqual('할일을 입력하세요', inputbox_with_placeholder.get_attribute('placeholder'))
+        self.assertEqual('할일을 입력하세요', inputbox_with_placeholder.get_attribute('placeholder'))
 
 
         # 사용자는 생일날 미역국을 끓이기 위해 inputbox에 "시장에서 미역 사기"를 입력한다.
@@ -70,7 +69,7 @@ class NewVisitorTest(unittest.TestCase):
         # "1: 시장에서 미역 사기"가 첫 번째 할일로 일정 목록에서 보여진다.
         table = self.browser.find_element_by_class_name('todo-list-table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertSetEqual('시장에서 미역 사기', rows[0].text)
+        self.assertEqual('시장에서 미역 사기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
 
         # 사용자는 추가로 할일 텍스트박스에 입력할 수 있고
         self.fail('테스트 종료')
