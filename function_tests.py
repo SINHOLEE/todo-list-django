@@ -71,8 +71,8 @@ class NewVisitorTest(unittest.TestCase):
         # form 태그를 html 파일에 추가하면, table element를 찾지 못하는 에러가 발생한다. 왜?
         table = self.browser.find_element_by_class_name('todo-list-table')
         # print(self.browser.get_log(log_type='driver'))
-        rows = table.find_elements_by_class_name('item-1')
-        self.assertEqual('시장에서 미역 사기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
+        row = table.find_element_by_class_name('item-1-content').text
+        self.assertEqual('시장에서 미역 사기' ,  row, 'new to-do item did not appear in table')
 
         # 사용자는 추가로 할일 텍스트박스에 입력할 수 있고
         inputbox_with_placeholder = self.browser.find_element_by_id('new-item')
@@ -81,18 +81,36 @@ class NewVisitorTest(unittest.TestCase):
         inputbox_with_placeholder.send_keys('미역을 물에 불리기')
         inputbox_with_placeholder.send_keys(Keys.ENTER)
         time.sleep(1)
+        self.browser.get('http://localhost:8000')
 
         # 다시 페이지를 새로고침해서 입력한 일정 두 가지 모두 목록에 표시한다.
-        self.browser.refresh()
+        table = self.browser.find_element_by_class_name('todo-list-table')
         # 사용자는 일정 목록이 사이트에 올바로 저장되었는지 궁금해서
+        row = table.find_element_by_class_name('item-2-content').text
+        self.assertEqual('미역을 물에 불리기' ,  row, 'new to-do item did not appear in table')
+        
+        # 갑자기 미역 물 불리기를 삭제하고 싶어서 미역 물 불리기 삭제버튼을 누른다.
+        second_delete_button = self.browser.find_element_by_class_name('item-2-btn')
+        second_delete_button.submit()
+
         rows = table.find_elements_by_class_name('item-2')
-        self.assertEqual('미역을 물에 불리기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
+        # 시장에서 미역 물 불리기가 지워졌는지 확인한다.
+        self.assertNotIn('미역을 물에 불리기', rows)
         
-        
+        # 새로 고침을 한 뒤
+        time.sleep(1)
+        self.browser.get('http://localhost:8000')
+        table = self.browser.find_element_by_class_name('todo-list-table')
 
-        self.fail('테스트 종료')
+        # 결국 남은 할일 목록은 하나밖에 없다는 걸 확인
+        row = table.find_element_by_class_name('item-1-content').text
+        self.assertEqual('시장에서 미역 사기' ,  row, 'new to-do item did not appear in table')
 
+        # self.fail('테스트 종료')
 
+        ##############################################
+        # 여기서 왜?! unittest는 테스트의 영향이 db에 반영되는데, django-unittest는 반영이 안되는 거지?
+        ###########################################
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
 
