@@ -21,3 +21,32 @@ class IndexPageTest(TestCase):
         self.assertTemplateUsed(response, 'todolist/index.html')
         # 일부로 잘못된 template를 가져와보기도 하자.
         self.assertTemplateNotUsed(response, 'todolist/wrong.html')
+
+
+class TodoModelTest(TestCase):
+    def test_read_todo_model_with_empty_db(self):
+        todos = Todo.objects.all()
+        self.assertEqual(todos, None)
+    
+    def test_create_todo_model_with_empty_db(self):
+        todo = Todo()
+        todo.content  = '시장에서 미역 사기'
+        todo.save()
+        self.assertEqual(todo.content, '시장에서 미역 사기')
+        self.assertEqual(todo.pk, 1)
+        self.assertEqual(todo.id, 1)
+        self.assertEqual(todo.is_completed, False)
+
+    def test_delete_todo_model_with_a_todo(self):
+        # create first
+        todo = Todo()
+        todo.content  = '시장에서 미역 사기'
+        todo.save()
+        
+        # 빈 공간에서 새로 만들었으니, pk는 1
+        todo = Todo.objects.get(pk=1)
+        todo.delete()
+
+        self.assertTrue(Todo.objects.all(), None)
+        self.assertTrue(Todo.objects.get(pk=1), None)
+        
