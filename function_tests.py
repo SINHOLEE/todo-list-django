@@ -71,21 +71,26 @@ class NewVisitorTest(unittest.TestCase):
         # form 태그를 html 파일에 추가하면, table element를 찾지 못하는 에러가 발생한다. 왜?
         table = self.browser.find_element_by_class_name('todo-list-table')
         # print(self.browser.get_log(log_type='driver'))
-        rows = table.find_elements_by_tag_name('tr')
+        rows = table.find_elements_by_class_name('item-1')
         self.assertEqual('시장에서 미역 사기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
 
         # 사용자는 추가로 할일 텍스트박스에 입력할 수 있고
-        self.fail('테스트 종료')
+        inputbox_with_placeholder = self.browser.find_element_by_id('new-item')
+        
         # "미역을 물에 불리기"라고 입력한다.
+        inputbox_with_placeholder.send_keys('미역을 물에 불리기')
+        inputbox_with_placeholder.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # 다시 페이지를 새로고침해서 입력한 일정 두 가지 모두 목록에 표시한다.
-
+        self.browser.refresh()
         # 사용자는 일정 목록이 사이트에 올바로 저장되었는지 궁금해서
-        # 고유 URL 생성을 확인한다.
+        rows = table.find_elements_by_class_name('item-2')
+        self.assertEqual('미역을 물에 불리기' ,  rows[0].text if len(rows) else '', 'new to-do item did not appear in table')
+        
+        
 
-        # 사용자는 URL을 방문하고 일정 목록이 올바르게 있음을 확인한다.
-
-        # 사용자는 이제 만족하고 잠을 자러간다.
+        self.fail('테스트 종료')
 
 
 if __name__ == '__main__':
