@@ -8,11 +8,12 @@
 <body>
   <h1>일정목록</h1>
   <form action="" method="post">
+    {% csrf_token %}
     <input id="new-item" name="item-text" placeholder="할일을 입력하세요">
+    <button type="submit">입력</button>
   </form>
   <table class="todo-list-table">
-
+    
   </table>
-  <!-- <form action="" class="" id="new-item"></form> -->
 </body>
 </html>
