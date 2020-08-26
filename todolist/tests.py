@@ -4,6 +4,7 @@ from django.http import HttpRequest
 # 단순 HTML 문저 내용의 비교라면 해당함수를 이용할 수 도 있다.
 from django.template.loader import render_to_string  
 from .views import index  # 아직 만들진 않았지만, 추후에 만들 view함수
+from .models import Todo
 # Create your tests here.
 
 class IndexPageTest(TestCase):
@@ -25,8 +26,8 @@ class IndexPageTest(TestCase):
 
 class TodoModelTest(TestCase):
     def test_read_todo_model_with_empty_db(self):
-        todos = Todo.objects.all()
-        self.assertEqual(todos, None)
+        
+        self.assertEqual(Todo.objects.exists(), False)
     
     def test_create_todo_model_with_empty_db(self):
         todo = Todo()
@@ -42,11 +43,11 @@ class TodoModelTest(TestCase):
         todo = Todo()
         todo.content  = '시장에서 미역 사기'
         todo.save()
+        self.assertTrue(Todo.objects.exists())
+        self.assertEqual(Todo.objects.get(pk=1).content, '시장에서 미역 사기')
         
         # 빈 공간에서 새로 만들었으니, pk는 1
         todo = Todo.objects.get(pk=1)
         todo.delete()
 
-        self.assertTrue(Todo.objects.all(), None)
-        self.assertTrue(Todo.objects.get(pk=1), None)
-        
+        self.assertEqual(Todo.objects.exists(), False)        
