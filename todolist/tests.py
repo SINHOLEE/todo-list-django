@@ -23,6 +23,24 @@ class IndexPageTest(TestCase):
         # 일부로 잘못된 template를 가져와보기도 하자.
         self.assertTemplateNotUsed(response, 'todolist/wrong.html')
 
+    # def test_index_page_after_post_returns_correct_html(self): 내가 지은 이름
+    def test_index_page_can_save_a_post_request(self):
+        # request = HttpRequest()
+        # request.method = 'POST'
+        # request.POST['content'] = '시장에서 미역 사기'
+
+        # response = index(request)
+
+        data = {'content': '시장에서 미역 사기'}
+        response = self.client.post('/', data=data)
+        print(response.content.decode())
+        self.assertIn('시장에서 미역 사기', response.content.decode())
+        data = {'content': '집가서 미역국 끓이기'}
+        response = self.client.post('/', data=data)
+        print(response.content.decode())
+        self.assertIn('집가서 미역국 끓이기', response.content.decode())
+        # self.assertEqual( response.context.todo_list[0].content, '시장에서 미역 사기')
+
 
 class TodoModelTest(TestCase):
     def test_read_todo_model_with_empty_db(self):
