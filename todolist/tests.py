@@ -33,14 +33,26 @@ class IndexPageTest(TestCase):
 
         data = {'content': '시장에서 미역 사기'}
         response = self.client.post('/', data=data)
-        print(response.content.decode())
+        # print(response.content.decode())
         self.assertIn('시장에서 미역 사기', response.content.decode())
         data = {'content': '집가서 미역국 끓이기'}
         response = self.client.post('/', data=data)
-        print(response.content.decode())
+        # print(response.content.decode())
         self.assertIn('집가서 미역국 끓이기', response.content.decode())
         # self.assertEqual( response.context.todo_list[0].content, '시장에서 미역 사기')
 
+    def test_index_page_can_delete_a_table_item(self):
+        data = {'content': '시장에서 미역 사기'}
+        response = self.client.post('/', data=data)
+        
+        data = {'content': '집가서 미역국 끓이기'}
+        response = self.client.post('/', data=data)
+        
+        response = self.client.post('/delete/1') # ok 상태만 출력
+
+        response = self.client.get('/')
+        print(response.content.decode())
+        self.assertNotIn('시장에서 미역 사기', response.content.decode())
 
 class TodoModelTest(TestCase):
     def test_read_todo_model_with_empty_db(self):
@@ -65,6 +77,7 @@ class TodoModelTest(TestCase):
         self.assertEqual(Todo.objects.get(pk=1).content, '시장에서 미역 사기')
         
         # 빈 공간에서 새로 만들었으니, pk는 1
+        # 여러번 시도하면 pk값은 autoincrement이니 당연히 pk값이 증가하게 되면서 테스트가 틀려야 할 것 같은데 그렇지 않는다.
         todo = Todo.objects.get(pk=1)
         todo.delete()
 

@@ -18,7 +18,16 @@
     </thead>
     <tbody>
     {% for todo in todo_list %}
-    <tr class="item-{{todo.pk}}"><td></td><td>{{todo.content}}</td></tr>
+    <tr class="item-{{todo.pk}}">
+      <td></td>
+      <td class='item-{{todo.pk}}-content'>{{todo.content}}</td>
+      <td class='item-btn'>
+        <form action="{% url 'todolist:delete' todo.pk %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="item-{{todo.pk}}-btn">delete</button>
+        </form>
+      </td>
+    </tr>
     {% endfor %}
     </tbody>
   </table>
