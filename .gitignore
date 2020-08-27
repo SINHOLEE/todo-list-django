@@ -269,3 +269,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/django,windows,linux,python,visualstudiocode,venv
+
+
+geckodriver*
