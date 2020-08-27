@@ -3,9 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Todo List</title>
 </head>
 <body>
-  <h1>Hello World</h1>
+  <h1>일정목록</h1>
+  <form action="{% url  'todolist:index' %}" method="post">
+    {% csrf_token %}
+    <input id="new-item" name="content" placeholder="할일을 입력하세요">
+    <button type="submit">입력</button>
+  </form>
+  <table class="todo-list-table">
+    <thead>
+    <td></td><td>할일</td>
+    </thead>
+    <tbody>
+    {% for todo in todo_list %}
+    <tr class="item-{{todo.pk}}">
+      <td></td>
+      <td class='item-{{todo.pk}}-content'>{{todo.content}}</td>
+      <td class='item-btn'>
+        <form action="{% url 'todolist:delete' todo.pk %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="item-{{todo.pk}}-btn">delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </body>
 </html>
