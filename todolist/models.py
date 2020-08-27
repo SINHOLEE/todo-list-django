@@ -7,3 +7,6 @@ class Todo(models.Model):
     updated = models.DateTimeField('수정시간', auto_now=True, auto_now_add=False)
     is_completed = models.BooleanField('완료여부', default=False)
 
+    class Meta:
+
+        ordering = ['created']
