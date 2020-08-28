@@ -3,14 +3,15 @@ from django.urls import resolve
 from django.http import HttpRequest
 # 단순 HTML 문저 내용의 비교라면 해당함수를 이용할 수 도 있다.
 from django.template.loader import render_to_string  
-from .views import index  # 아직 만들진 않았지만, 추후에 만들 view함수
+from .views import ListTodos  # 아직 만들진 않았지만, 추후에 만들 view함수
 from .models import Todo
+
 # Create your tests here.
 
 class IndexPageTest(TestCase):
     def test_root_url_resolves_to_index_page_view(self):
         found = resolve('/')
-        self.assertEqual(found.func, index)
+        self.assertEqual(found.url_name, 'index')
 
     def test_index_page_returns_correct_html(self):
         response = self.client.get('/')
@@ -34,9 +35,14 @@ class IndexPageTest(TestCase):
         data = {'content': '시장에서 미역 사기'}
         response = self.client.post('/', data=data)
         # print(response.content.decode())
+        # post 명령을 보내고 다시 돌아올 때는 get요청해야한다. 왜? redirect때문에
+        response = self.client.get('/')
         self.assertIn('시장에서 미역 사기', response.content.decode())
         data = {'content': '집가서 미역국 끓이기'}
+        
         response = self.client.post('/', data=data)
+        # post 명령을 보내고 다시 돌아올 때는 get요청해야한다. 왜? redirect때문에
+        response = self.client.get('/')
         # print(response.content.decode())
         self.assertIn('집가서 미역국 끓이기', response.content.decode())
         # self.assertEqual( response.context.todo_list[0].content, '시장에서 미역 사기')
@@ -48,7 +54,8 @@ class IndexPageTest(TestCase):
         data = {'content': '집가서 미역국 끓이기'}
         response = self.client.post('/', data=data)
         
-        response = self.client.post('/delete/1') # ok 상태만 출력
+        data = {'pk': '1'}
+        response = self.client.post('/', data=data) # ok 상태만 출력
 
         response = self.client.get('/')
         print(response.content.decode())

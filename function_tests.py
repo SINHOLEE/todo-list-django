@@ -40,6 +40,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def tearDown(self):
         self.browser.quit()
+        
 
     # 홈페이지에 방문한 후 제목이 Todo List인 것을 보고 올바른 홈페이지에 방문한 것인지 확인한다.
     def test_can_start_a_list_and_retrieve_it_later(self):

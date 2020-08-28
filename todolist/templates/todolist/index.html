@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Todo List</title>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+
 </head>
 <body>
   <h1>일정목록</h1>
-  <form action="{% url  'todolist:index' %}" method="post">
+  <form action="{% url  'todolist:index' %}" method="post" style="display:flex ">
+    
     {% csrf_token %}
-    <input id="new-item" name="content" placeholder="할일을 입력하세요">
+    {{ form.as_p }}
+  
+    {% comment %} <input id="new-item" name="content" placeholder="할일을 입력하세요"> {% endcomment %}
     <button type="submit">입력</button>
   </form>
   <table class="todo-list-table">
@@ -18,18 +23,46 @@
     </thead>
     <tbody>
     {% for todo in todo_list %}
-    <tr class="item-{{todo.pk}}">
+
+    <tr class="item-{{ todo.pk}}">
       <td></td>
-      <td class='item-{{todo.pk}}-content'>{{todo.content}}</td>
+      <td class='item-{{ todo.pk}}-content'>{{ todo.content}}</td>
       <td class='item-btn'>
-        <form action="{% url 'todolist:delete' todo.pk %}" method="post">
+      {% comment %} method delete는 ajax에서만 제공한다는데... 그럼 javascript로 변환해야할까? {% endcomment %}
+        <div class="form-item" name="pk" value={{todo.pk}}  action="{% url 'todolist:index'  %}" method="post">
           {% csrf_token %}
-          <button type="submit" class="item-{{todo.pk}}-btn">delete</button>
-        </form>
+          
+          <button type="submit"  class="item-{{ todo.pk}}-btn">delete</button>
+        </div>
       </td>
     </tr>
     {% endfor %}
     </tbody>
   </table>
 </body>
+<script>
+$(document).ready(function(){
+  var forms = $(".form-item")
+  forms.map(function(idx, target){
+    var self_target = target;
+    console.log(target.getElementsByTagName("button"))
+    $(target.getElementsByTagName("button"))
+    .click(function(e){
+      console.log(e)
+      e.preventDefault()
+      console.log("111111111111")
+      $.ajax({
+        url:"http://localhost:8000",
+        type: 'delete',
+        data: {'pk':self_target.getAttribute("value")},
+        dataType: 'json',
+        success: function(data){
+        }
+      })
+    })
+
+  })
+});
+
+</script>
 </html>
