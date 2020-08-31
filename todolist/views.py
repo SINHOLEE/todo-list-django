@@ -6,7 +6,6 @@ from .models import Todo
 from .forms import TodoCreateForm
 from django.shortcuts import render, HttpResponse
 from django.shortcuts import get_object_or_404,redirect
-
 from django.db import connection  # for db sql
 
 class ListTodos(APIView):
