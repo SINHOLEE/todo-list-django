@@ -1,22 +1,46 @@
-from django.shortcuts import render, HttpResponse
-from .models import Todo
-from django.shortcuts import get_object_or_404,redirect
 # Create your views here.
-def index(request):
-    todo_list = None
-    if request.method == 'POST':
-        temp = request.POST['content']
-        if temp != '':            
-            todo = Todo()
-            todo.content = temp
-            todo.save()
-    todo_list = Todo.objects.all()
-    return render(request, 'todolist/index.html', {'todo_list':todo_list})
+from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
+from .models import Todo
+from .forms import TodoCreateForm
+from django.shortcuts import render, HttpResponse
+from django.shortcuts import get_object_or_404,redirect
 
+from django.db import connection  # for db sql
 
-def delete(request, todo_pk):
-    if request.method == 'POST':
-        delete_todo = get_object_or_404(Todo, pk=todo_pk)
-        delete_todo.delete()
+class ListTodos(APIView):
     
-    return redirect('todolist:index')
+    def get(self, request):
+        todos = Todo.objects.all()
+        data = request.data
+        print(data)
+        print(request.query_params)
+        form = TodoCreateForm()
+        # return re(todos)
+        context = {
+            'todo_list':todos, 
+            'form':form,
+            }
+        print(connection.queries)
+        return render(request, 'todolist/index.html',context=context)
+    
+    def post(self, request):
+        data = request.data
+        # save
+    
+        if data.get('content') is not None and data.get('content') != "":
+            content = data.get('content')
+            todo = Todo()
+            todo.content = content
+            todo.save()        
+            print(connection.queries)
+        return redirect('todolist:index')
+
+    def delete(self, request):
+        data = request.data
+        if data.get('pk') is not None and data.get('pk') != "":
+            todo = get_object_or_404(Todo, pk=int(data.get('pk')))
+            todo.delete()
+        print(connection.queries)
+        return Response(204)
