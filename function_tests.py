@@ -57,8 +57,9 @@ class NewVisitorTest(unittest.TestCase):
 
 
         # 일정을 입력할 수 있는 tag로 바로 이동한다.
-        inputbox_with_placeholder = self.browser.find_element_by_id('new-item')
-        self.assertEqual('할일을 입력하세요', inputbox_with_placeholder.get_attribute('placeholder'))
+        inputbox_with_placeholder = self.browser.find_element_by_name("content")
+        
+        # self.assertEqual('할일을 입력하세요', inputbox_with_placeholder.get_attribute('placeholder'))
 
 
         # 사용자는 생일날 미역국을 끓이기 위해 inputbox에 "시장에서 미역 사기"를 입력한다.
@@ -76,7 +77,7 @@ class NewVisitorTest(unittest.TestCase):
         self.assertEqual('시장에서 미역 사기' ,  row, 'new to-do item did not appear in table')
 
         # 사용자는 추가로 할일 텍스트박스에 입력할 수 있고
-        inputbox_with_placeholder = self.browser.find_element_by_id('new-item')
+        inputbox_with_placeholder = self.browser.find_element_by_name("content")
         
         # "미역을 물에 불리기"라고 입력한다.
         inputbox_with_placeholder.send_keys('미역을 물에 불리기')
@@ -92,8 +93,11 @@ class NewVisitorTest(unittest.TestCase):
         
         # 갑자기 미역 물 불리기를 삭제하고 싶어서 미역 물 불리기 삭제버튼을 누른다.
         second_delete_button = self.browser.find_element_by_class_name('item-2-btn')
-        second_delete_button.submit()
+       
+        second_delete_button.click()
 
+        # 클릭하면서 새로고침이 되므로 다시 테이블 돔을 참조한다.
+        table = self.browser.find_element_by_class_name('todo-list-table')
         rows = table.find_elements_by_class_name('item-2')
         # 시장에서 미역 물 불리기가 지워졌는지 확인한다.
         self.assertNotIn('미역을 물에 불리기', rows)

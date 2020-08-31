@@ -54,11 +54,10 @@ class IndexPageTest(TestCase):
         data = {'content': '집가서 미역국 끓이기'}
         response = self.client.post('/', data=data)
         
-        data = {'pk': '1'}
-        response = self.client.post('/', data=data) # ok 상태만 출력
-
+        data = '{"pk": "1"}'
+        response = self.client.delete('/', data=data, content_type='application/json') # ok 상태만 출력
+        self.assertEqual('204', response.content.decode())
         response = self.client.get('/')
-        print(response.content.decode())
         self.assertNotIn('시장에서 미역 사기', response.content.decode())
 
 class TodoModelTest(TestCase):

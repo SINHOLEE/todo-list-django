@@ -14,7 +14,7 @@
     {% csrf_token %}
     {{ form.as_p }}
   
-    {% comment %} <input id="new-item" name="content" placeholder="할일을 입력하세요"> {% endcomment %}
+    <!-- <input id="new-item" name="content" placeholder="할일을 입력하세요">  -->
     <button type="submit">입력</button>
   </form>
   <table class="todo-list-table">
@@ -29,10 +29,8 @@
       <td class='item-{{ todo.pk}}-content'>{{ todo.content}}</td>
       <td class='item-btn'>
       {% comment %} method delete는 ajax에서만 제공한다는데... 그럼 javascript로 변환해야할까? {% endcomment %}
-        <div class="form-item" name="pk" value={{todo.pk}}  action="{% url 'todolist:index'  %}" method="post">
-          {% csrf_token %}
-          
-          <button type="submit"  class="item-{{ todo.pk}}-btn">delete</button>
+        <div class="form-item" name="pk" value={{todo.pk}}  method="post">          
+          <button  class="item-{{ todo.pk}}-btn">delete</button>
         </div>
       </td>
     </tr>
@@ -48,16 +46,20 @@ $(document).ready(function(){
     console.log(target.getElementsByTagName("button"))
     $(target.getElementsByTagName("button"))
     .click(function(e){
-      console.log(e)
-      e.preventDefault()
-      console.log("111111111111")
+      console.log(e);
+      console.log("111111111111");
+      console.log(location.origin);
+      
       $.ajax({
         url:"http://localhost:8000",
         type: 'delete',
         data: {'pk':self_target.getAttribute("value")},
         dataType: 'json',
-        success: function(data){
-        }
+      }).done(function(data){
+        console.log(data);
+        
+        location.replace("http://localhost:8000") ;
+      }).fail( function(data){
       })
     })
 
