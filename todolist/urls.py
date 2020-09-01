@@ -1,8 +1,7 @@
-from django.urls import path
+from rest_framework import routers
 from .views import *
 
-app_name="todolist"
+routers = routers.SimpleRouter()
+routers.register(r'Todos', TodoModelViewSet)
 
-urlpatterns = [
-    path('', ListTodos.as_view(), name='index'),
-]
+urlpatterns = routers.urls

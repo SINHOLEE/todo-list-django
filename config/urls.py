@@ -15,8 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+from todolist.views import TodoModelViewSet
+
+routers = routers.SimpleRouter()
+routers.register(r'api/v1/todos', TodoModelViewSet, basename='todos')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('todolist.urls')),
-]
+] + routers.urls
