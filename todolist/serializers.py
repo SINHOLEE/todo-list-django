@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Todo
+from .models import Todo, Priority
 
 class TodoSerializer(ModelSerializer):
     class Meta:
@@ -11,3 +11,8 @@ class TodoSerializer(ModelSerializer):
         'is_completed' ,
         'priority',
     ]
+
+class PrioritySerializer(ModelSerializer):
+    class Meta:
+        model = Priority
+        fields = ['pk', 'p_type',]
