@@ -10,11 +10,28 @@
 from .serializers import TodoSerializer
 from .models import Todo
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class TodoModelViewSet(ModelViewSet):
+    
+    lookup_field = 'pk'
+    
     def get_queryset(self):
-        return Todo.objects.all()
+        queryset = Todo.objects.all()
+        return queryset
+
     serializer_class = TodoSerializer
+
+    @action(detail=False, methods=['get'])
+    def p(self, request, pk=None):
+        print(self.kwargs)
+        print(self.args)
+        print(pk)
+        queryset = Todo.objects.all()
+        serializer = TodoSerializer(queryset, many=True)
+
+        return Response(serializer.data)
     
         
 

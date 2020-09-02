@@ -17,11 +17,15 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from todolist.views import TodoModelViewSet
+from rest_framework.routers import url 
+
+
 
 routers = routers.SimpleRouter()
-routers.register(r'api/v1/todos', TodoModelViewSet, basename='todos')
+routers.register(r'todos', TodoModelViewSet, basename='todos')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-] + routers.urls
+    url(r'api/v1/', include(routers.urls)),
+] 
