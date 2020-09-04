@@ -6,7 +6,7 @@ from rest_framework.routers import url
 
 routers = routers.SimpleRouter()
 routers.register(r'todos', TodoModelViewSet, basename='todos')
-routers.register(r'priorites', PriorityModelViewSet, basename='priorities')
+routers.register(r'priorities', PriorityModelViewSet, basename='priorities')
 
 urlpatterns = [
     url(r'', include(routers.urls)),

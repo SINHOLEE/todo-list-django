@@ -1,14 +1,16 @@
-from django_filters.rest_framework import DjangoFilterBackend
-
-from .serializers import TodoSerializer, PrioritySerializer
+from .serializers import *
 from .models import Todo, Priority
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import filters
+
+from rest_framework.viewsets import ModelViewSet,ViewSetMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException, ValidationError
+from django_filters.rest_framework import DjangoFilterBackend
+
 from django.db import connection  # for db sql
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import APIException, ValidationError
-from rest_framework import filters
+
 from pprint import pprint
 
 class TodoModelViewSet(ModelViewSet):
@@ -16,6 +18,43 @@ class TodoModelViewSet(ModelViewSet):
     lookup_field = 'pk'
     filter_backends = [filters.SearchFilter]
     search_fields  = ['=content']
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        `.dispatch()` is pretty much the same as Django's regular dispatch,
+        but with extra hooks for startup, finalize, and exception handling.
+        """
+        print("+++++++++++++++dispatch+++++++++++++")
+        self.args = args
+        self.kwargs = kwargs
+        print(request)
+        request = self.initialize_request(request, *args, **kwargs)
+        self.request = request
+        self.headers = self.default_response_headers  # deprecate?
+        print(self.args)
+        print(request)
+        print(dir(request))
+        print(self.kwargs)
+        print(self.headers)
+        print("++++++++++++++dispatch+++++++++++++")
+        try:
+            self.initial(request, *args, **kwargs)
+
+            # Get the appropriate handler method
+            if request.method.lower() in self.http_method_names:
+                handler = getattr(self, request.method.lower(),
+                                  self.http_method_not_allowed)
+            else:
+                handler = self.http_method_not_allowed
+
+            response = handler(request, *args, **kwargs)
+
+        except Exception as exc:
+            response = self.handle_exception(exc)
+
+        self.response = self.finalize_response(request, response, *args, **kwargs)
+        return self.response
+
 
     def get_queryset(self):
         queryset = Todo.objects.all()
@@ -35,10 +74,10 @@ class TodoModelViewSet(ModelViewSet):
 
     serializer_class = TodoSerializer
 
-    def get_object(self):
-        obj = super().get_object()
-        pprint(connection.queries) # 언제 평가가 발생하는지 잘 모르겠다!
-        return obj
+    # def get_object(self):
+    #     obj = super().get_object()
+    #     # pprint(connection.queries) # 언제 평가가 발생하는지 잘 모르겠다!
+    #     return obj
 
     # 똑같은거 연속으로 두 번 이상 생성하지 말라는 함수
     def perform_create(self, serializer):
@@ -49,29 +88,81 @@ class TodoModelViewSet(ModelViewSet):
             if todo.exists():
                 raise ValidationError
             serializer.save()
-        pprint(connection.queries)  # 평가 공간
+        # pprint(connection.queries)  # 평가 공간
+
+    
 
 
 
 class PriorityModelViewSet(ModelViewSet):
 
+    serializer_class = PrioritySerializer
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        `.dispatch()` is pretty much the same as Django's regular dispatch,
+        but with extra hooks for startup, finalize, and exception handling.
+        """
+        print("+++++++++++++++dispatch+++++++++++++")
+        self.args = args
+        self.kwargs = kwargs
+        print(request)
+        request = self.initialize_request(request, *args, **kwargs)
+        self.request = request
+        self.headers = self.default_response_headers  # deprecate?
+        print(self.args)
+        print(request)
+        print(request.query_params)
+        print(self.kwargs)
+        print(self.headers)
+        try:
+            self.initial(request, *args, **kwargs)
+
+
+            # Get the appropriate handler method
+            if request.method.lower() in self.http_method_names:
+                handler = getattr(self, request.method.lower(),
+                                    self.http_method_not_allowed)
+            else:
+                handler = self.http_method_not_allowed
+            print("handler: ",handler)
+            response = handler(request, *args, **kwargs)
+
+        except Exception as exc:
+            response = self.handle_exception(exc)
+        print("++++++++++++++dispatch+++++++++++++")
+
+        self.response = self.finalize_response(request, response, *args, **kwargs)
+        return self.response
+
+
     def get_queryset(self):
         queryset = Priority.objects.all()
+        print("lookup_field")
+        print(self.lookup_field)
         return queryset
-    serializer_class = PrioritySerializer
+
+    @action(detail=False)
+    def detailed(self, request, pk=None):
+        queryset = self.get_queryset()
+        serializer = DetaildPrioritySerializer(queryset, context={'request': request}, many=True)
+        return Response(serializer.data)
 
     @action(detail=True)
     def todos(self, request, pk=None):
         queryset = get_object_or_404(Priority, pk=pk)
-        serializer = TodoSerializer(queryset.todos.all(), many=True)
-        response = Response(serializer.data)
-        pprint(connection.queries)  # 평가 공간
-        return response
+        serializer = DetaildPrioritySerializer(queryset, context={'request': request}, many=False)
+        return Response(serializer.data)
 
-    def get_object(self):
-        obj = super().get_object()
-        pprint(connection.queries) # 언제 평가가 발생하는지 잘 모르겠다!
-        return obj
+
+        
+    
+    # def get_object(self):
+    #     obj = super().get_object()
+    #     print("++++++++++++this is getobject from PriorityModelViewSet++++++++++")
+    #     pprint(connection.queries) # 언제 평가가 발생하는지 잘 모르겠다!
+    #     print("++++++++++++this is getobject from PriorityModelViewSet++++++++++")
+    #     return obj
 # class ListTodos(APIView):
     
 #     def get(self, request):
