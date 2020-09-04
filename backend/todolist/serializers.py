@@ -45,7 +45,7 @@ class TodoSerializer(DynamicFieldsModelSerializer, ModelSerializer):
     
     class Meta:
         model = Todo
-        fields = ['pk', 'content', 'created','updated', 'is_completed',]
+        fields = ['pk', 'content', 'created','updated', 'is_completed',"priority"]
         # fields = '__all__' # 이렇게 하면, 관계형으로 표현할 때, pk와 id가 혼용되어 나타난다.
 
     

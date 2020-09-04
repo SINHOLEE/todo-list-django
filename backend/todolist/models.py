@@ -16,4 +16,4 @@ class Todo(models.Model):
     priority = models.ForeignKey(Priority, on_delete=models.PROTECT, related_name='todos')
     class Meta:
 
-        ordering = ['priority', 'is_completed', 'created']
+        ordering = ['created']
