@@ -66,7 +66,7 @@ class DetailedTodoSerializer(DynamicFieldsModelSerializer, ModelSerializer):
         # fields = '__all__' # 이렇게 하면, 관계형으로 표현할 때, pk와 id가 혼용되어 나타난다.
 
         
-class DetaildPrioritySerializer(DynamicFieldsModelSerializer, ModelSerializer):
+class DetailedPrioritySerializer(DynamicFieldsModelSerializer, ModelSerializer):
     # from .serializers import TodoSerializer
     todos = TodoSerializer(
         many=True

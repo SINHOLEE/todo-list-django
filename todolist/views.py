@@ -145,13 +145,14 @@ class PriorityModelViewSet(ModelViewSet):
     @action(detail=False)
     def detailed(self, request, pk=None):
         queryset = self.get_queryset()
-        serializer = DetaildPrioritySerializer(queryset, context={'request': request}, many=True)
+        serializer = DetailedPrioritySerializer(queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 
     @action(detail=True)
     def todos(self, request, pk=None):
         queryset = get_object_or_404(Priority, pk=pk)
-        serializer = DetaildPrioritySerializer(queryset, context={'request': request}, many=False)
+        queryset = queryset.todos.all()
+        serializer = TodoSerializer(queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 
 
