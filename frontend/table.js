@@ -53,26 +53,49 @@ const getMenusByKey = (key) => {
     return deepcopiedMenus;
 }
 
-
 // 이 부분이랑 밑에 getMenuByKey 이거를 조금 더 깔끔하게... if else없이 구현할 수 있는 방법 없을까?
 // 해결
 const renderTableHandler=(e)=>{
         toggleByKey(e.target.abbr);
-        renderTable(e.target.abbr);
+        const deepcopiedMenus = getMenusByKey(e.target.abbr);
+        OrderTable(deepcopiedMenus);
 }
 
+const OrderTable = (menus) => {
+    const total = {
+        "price": 0,
+        "kcal": 0
+    }
+    // 기존에 있는 돔 안의 값을 변경하면서 비용 최소화
+    const trList = restruant.querySelectorAll("tbody tr");
+    console.log(trList)
+    menus.map((menu, menu_idx) => {
+        const tr = trList[menu_idx].querySelectorAll("th, td");
+        fields.forEach((field, field_idx) => {
+            const t = tr[field_idx];
+            if (field ==="name"){
+                t.scope = "row";
+                t.innerText = menu[field];
+            } else {
+                total[field] += menu[field];
+                t.innerText = menu[field];
+            }
+        })
+    })
+    // 총가격
+    const footerEls = restruant.querySelectorAll("tfoot tr th, tfoot tr td");
+    fields.forEach((field, idx) => {if(idx>0){footerEls[idx].innerText = total[field]}})
+}
 
-const renderTable = (key) => {
+const renderTable = (menus) => {
     // 기존의 tbody, tfoot 삭제
-    restruant.removeChild(restruant.querySelector("tbody"));
     const tbody = document.createElement("tbody");
     // 학수형 말대로 total이라는 오브젝트를 관리해보자.
     const total = {
         "price": 0,
         "kcal": 0
     }
-    const deepcopiedMenus = getMenusByKey(key);
-    deepcopiedMenus.map(value => {
+    menus.map(value => {
         const tr = document.createElement("tr");
         fields.forEach(field => {
             if (field ==="name"){
@@ -104,6 +127,7 @@ const renderTable = (key) => {
 
 function init() {
     const colHeads = restruant.querySelectorAll("thead > tr > th");
+    renderTable([...menus])
     colHeads.forEach(el => el.addEventListener("click", renderTableHandler));
 
     // 왜 map으로 순환돌리면 안되는거냐.... 
