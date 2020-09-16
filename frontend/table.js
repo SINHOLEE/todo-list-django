@@ -15,27 +15,40 @@ const menus = [
     "kcal": 340,},
 ]
 // 토글변수를 클로저로 관리하고 싶었는데 실패....
-let priceToggle = true;
-let kcalToggle = true;
+let isPriceOrderByAsc = true;
+let isKcalOrderByAsc = true;
 
-function getPriceToggle(){
-    priceToggle= !priceToggle;
-    return priceToggle; 
+
+const getToggleByKey = (key) => {
+    if (key === "price"){
+        return isPriceOrderByAsc;
+    }
+    return isKcalOrderByAsc;
 }
-function getKcalToggle(){
-    kcalToggle = !kcalToggle;
-    return kcalToggle;
+function togglePrice(){
+    isPriceOrderByAsc= !isPriceOrderByAsc;
+}
+function toggleKcal(){
+    isKcalOrderByAsc = !isKcalOrderByAsc;
+}
+
+function toggleByKey(key){
+    if (key === "price"){
+        togglePrice()
+    } else {
+        toggleKcal()
+    }
 }
 // sortBtSomething 더 생길때마다 하나하나 함수를 더 만들어야하나? 뭔가 이것도 통합되는 함수 만들 수 있을거같은데...ㅠ
 // 해결 ...ㅎㅎ
 const getMenusByKey = (key) => {
-    tempToggle = getKcalToggle();
-    const deepcopiedMenus = JSON.parse(JSON.stringify(menus));
+    const deepcopiedMenus = [...menus];
     if (key==""){
         return deepcopiedMenus;
     }
+    const toggle = getToggleByKey(key);
     deepcopiedMenus.sort(function(a,b){
-        return (a[key] <= b[key]?1 :-1)  * (tempToggle ? -1:1 )
+        return (a[key] <= b[key]?1 :-1)  * (toggle ? -1:1 )
     });
     return deepcopiedMenus;
 }
@@ -44,35 +57,32 @@ const getMenusByKey = (key) => {
 // 이 부분이랑 밑에 getMenuByKey 이거를 조금 더 깔끔하게... if else없이 구현할 수 있는 방법 없을까?
 // 해결
 const renderTableHandler=(e)=>{
+        toggleByKey(e.target.abbr);
         renderTable(e.target.abbr);
 }
 
-const totalNumHandler=(field, tPrice, tKcal, value)=>{
-    if (field === "price") {
-        return [tPrice + value, tKcal];
-    } else{
-        return [tPrice, tKcal + value];
-    }
-}
 
 const renderTable = (key) => {
     // 기존의 tbody, tfoot 삭제
     restruant.removeChild(restruant.querySelector("tbody"));
     const tbody = document.createElement("tbody");
-    let totalPrice = 0;
-    let totalKcal = 0;
+    // 학수형 말대로 total이라는 오브젝트를 관리해보자.
+    const total = {
+        "price": 0,
+        "kcal": 0
+    }
     const deepcopiedMenus = getMenusByKey(key);
     deepcopiedMenus.map(value => {
         const tr = document.createElement("tr");
-        fields.forEach((field, idx) => {
-            if (idx===0){
+        fields.forEach(field => {
+            if (field ==="name"){
                 const t = document.createElement("th");
                 t.scope = "row";
                 t.innerText = value[field];
                 tr.appendChild(t);
             } else {
                 const t = document.createElement("td");      
-                [totalPrice, totalKcal] = totalNumHandler(field, totalPrice, totalKcal, value[field]);
+                total[field] += value[field];
                 t.innerText = value[field];
                 tr.appendChild(t);
             }
@@ -80,16 +90,20 @@ const renderTable = (key) => {
         tbody.appendChild(tr);
     })
     restruant.appendChild(tbody);
-    const totalPriceEls = restruant.querySelectorAll("tfoot td");
+    const footerEls = restruant.querySelectorAll("tfoot tr th, tfoot tr td");
+    console.log(footerEls);
+    // 두 코드 중 차이가 있는지? 없는지?
+    // dom 객체 제어
+    // footerEls.forEach((el, idx) => {if(idx>0){el.innerText = total[fields[idx]]}})
+    
+    // fields 객체 제어
+    fields.forEach((field, idx) => {if(idx>0){footerEls[idx].innerText = total[field]}})
     // 총 가격
-    totalPriceEls[0].innerText = totalPrice;
-    totalPriceEls[1].innerText = totalKcal;
 };
 
 
 function init() {
     const colHeads = restruant.querySelectorAll("thead > tr > th");
-    console.log(colHeads);
     colHeads.forEach(el => el.addEventListener("click", renderTableHandler));
 
     // 왜 map으로 순환돌리면 안되는거냐.... 
