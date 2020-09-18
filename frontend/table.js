@@ -1,5 +1,20 @@
-const restruant = document.querySelector(".restruant");
-const fields = ["name", "price", "kcal"];
+const restaurant = document.querySelector(".restaurant");
+// asc: true, desc: false
+const orderAPI = function() {
+  const fields = ["name", "price", "kcal"];
+  const orderState = {
+    price: true,
+    kcal: true,
+  };
+
+  const getOrderState = key => orderState[key];
+  const toggleOrderState = key => {
+    orderState[key] = !orderState[key]
+  }
+
+  return {fields, getOrderState, toggleOrderState}
+}
+
 const menus = [
     {"name": "짜장면",
     "price": 3000,
@@ -15,50 +30,26 @@ const menus = [
     "kcal": 340,},
 ]
 // 토글변수를 클로저로 관리하고 싶었는데 실패....
-let isPriceOrderByAsc = true;
-let isKcalOrderByAsc = true;
+const {fields, getOrderState, toggleOrderState} = orderAPI();
 
-
-const getToggleByKey = (key) => {
-    if (key === "price"){
-        return isPriceOrderByAsc;
-    }
-    return isKcalOrderByAsc;
-}
-function togglePrice(){
-    isPriceOrderByAsc= !isPriceOrderByAsc;
-}
-function toggleKcal(){
-    isKcalOrderByAsc = !isKcalOrderByAsc;
-}
-
-function toggleByKey(key){
-    if (key === "price"){
-        togglePrice()
-    } else {
-        toggleKcal()
-    }
-}
-// sortBtSomething 더 생길때마다 하나하나 함수를 더 만들어야하나? 뭔가 이것도 통합되는 함수 만들 수 있을거같은데...ㅠ
-// 해결 ...ㅎㅎ
 const getMenusByKey = (key) => {
-    const deepcopiedMenus = [...menus];
-    if (key==""){
-        return deepcopiedMenus;
-    }
-    const toggle = getToggleByKey(key);
-    deepcopiedMenus.sort(function(a,b){
-        return (a[key] <= b[key]?1 :-1)  * (toggle ? -1:1 )
-    });
-    return deepcopiedMenus;
+  const deepcopiedMenus = [...menus];
+  if (key==""){
+      return deepcopiedMenus;
+  }
+  const toggle = getOrderState(key);
+  deepcopiedMenus.sort(function(a,b){
+      return (a[key] <= b[key]?1 :-1)  * (toggle ? -1:1 )
+  });
+  return deepcopiedMenus;
 }
 
 // 이 부분이랑 밑에 getMenuByKey 이거를 조금 더 깔끔하게... if else없이 구현할 수 있는 방법 없을까?
 // 해결
 const renderTableHandler=(e)=>{
-        toggleByKey(e.target.abbr);
-        const deepcopiedMenus = getMenusByKey(e.target.abbr);
-        OrderTable(deepcopiedMenus);
+  toggleOrderState(e.target.abbr);
+  const deepcopiedMenus = getMenusByKey(e.target.abbr);
+  OrderTable(deepcopiedMenus);
 }
 
 const OrderTable = (menus) => {
@@ -67,10 +58,11 @@ const OrderTable = (menus) => {
         "kcal": 0
     }
     // 기존에 있는 돔 안의 값을 변경하면서 비용 최소화
-    const trList = restruant.querySelectorAll("tbody tr");
-    console.log(trList)
+    // restaurant 돔에서 쿼리셀렉터로 접근하는것 vs 최상단 doc element에서 id로 접근하는 법 뭐가 더 빠를까?
+    // const trList = restaurant.querySelector("tbody").children;
+    const trList = document.getElementById("menu-tbody").childNodes;  // static collection으로 루프를 돌리는 것이 원하는 방법으로 동작한다.
     menus.map((menu, menu_idx) => {
-        const tr = trList[menu_idx].querySelectorAll("th, td");
+        const tr = trList[menu_idx].childNodes;
         fields.forEach((field, field_idx) => {
             const t = tr[field_idx];
             if (field ==="name"){
@@ -82,14 +74,16 @@ const OrderTable = (menus) => {
             }
         })
     })
-    // 총가격
-    const footerEls = restruant.querySelectorAll("tfoot tr th, tfoot tr td");
-    fields.forEach((field, idx) => {if(idx>0){footerEls[idx].innerText = total[field]}})
+    // 총가격... 은 변하지 않을테니 생략해도 될듯!
+    // const footerEls = restaurant.querySelectorAll("tfoot tr th, tfoot tr td");
+    // fields.forEach((field, idx) => {if(idx>0){footerEls[idx].innerText = total[field]}})
 }
 
 const renderTable = (menus) => {
     // 기존의 tbody, tfoot 삭제
-    const tbody = document.createElement("tbody");
+    const tbody = document.getElementById("menu-tbody");
+    console.log("t", tbody)
+    const dogFrac = new DocumentFragment();
     // 학수형 말대로 total이라는 오브젝트를 관리해보자.
     const total = {
         "price": 0,
@@ -110,10 +104,11 @@ const renderTable = (menus) => {
                 tr.appendChild(t);
             }
         })
-        tbody.appendChild(tr);
+        dogFrac.appendChild(tr);
     })
-    restruant.appendChild(tbody);
-    const footerEls = restruant.querySelectorAll("tfoot tr th, tfoot tr td");
+    tbody.appendChild(dogFrac);
+    restaurant.appendChild(tbody);
+    const footerEls = document.getElementById("menu-tfoot").firstElementChild.children; // HTMLCollection type...아 이거 동적이라서 살짝 불안한데
     console.log(footerEls);
     // 두 코드 중 차이가 있는지? 없는지?
     // dom 객체 제어
@@ -126,13 +121,9 @@ const renderTable = (menus) => {
 
 
 function init() {
-    const colHeads = restruant.querySelectorAll("thead > tr > th");
+    const colHeads = document.getElementById("menu-thead").childNodes;
     renderTable([...menus])
     colHeads.forEach(el => el.addEventListener("click", renderTableHandler));
-
-    // 왜 map으로 순환돌리면 안되는거냐.... 
-    // -> map은 새로운 객체를 만드는 것이기 때문에 이벤트리스너를 붙일 수 없다.
-    // colHeads.map(el => el.addEventListener("click", renderTableHandler));
 }
 
 init();
